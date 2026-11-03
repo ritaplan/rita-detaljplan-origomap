@@ -1,4 +1,9 @@
-# Rita Detaljplan – Origo-karta
+<h1 align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/images/banner-mork.svg">
+    <img src="docs/images/banner-ljus.svg" alt="Rita Detaljplan – detaljplaner i din Origo-karta" width="720">
+  </picture>
+</h1>
 
 **Visa kommunens detaljplaner i en webbkarta (Origo), direkt ur plandatabasen.** Planerna ritas som plankartor, och ett
 klick på en plan öppnar en informationspanel med planens uppgifter, plankartan och planbeskrivningen och alla bestämmelser
@@ -6,6 +11,14 @@ i området med motiv. Det här repot är en färdig lösning som vilken kommun s
 
 Det hör ihop med QGIS-pluginet [Rita Detaljplan](https://github.com/ritaplan/rita-detaljplan): planerna som ritas där och
 checkas in i PostGIS är det som visas i kartan, utan någon export.
+
+<p align="center">
+  <img src="docs/images/skarmbild.png" alt="Origo-karta med detaljplaner: en vald plan är inramad i kartan och panelen till vänster visar planens status, plankartan och planbeskrivningen som knappar, syfte, datum och genomförandetid" width="720">
+</p>
+
+<p align="center">
+  <img src="docs/images/skarmbild-bestammelser.png" alt="Origo-karta med detaljplaner: panelen visar bestämmelserna i området med motiv, och en egenskap som gäller där man klickade är markerad Gäller här" width="720">
+</p>
 
 ## Vad du får
 
