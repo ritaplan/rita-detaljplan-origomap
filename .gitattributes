@@ -1,0 +1,7 @@
+# Skript och konfiguration ska alltid ha radslut av typen LF (de körs på Linux)
+* text=auto eol=lf
+*.sh text eol=lf
+*.py text eol=lf
+*.yml text eol=lf
+*.sld text eol=lf
+*.conf text eol=lf
