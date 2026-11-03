@@ -4,7 +4,10 @@
 #   QGIS Server  -> WMS och WFS              (/qgis/...)
 #   web (nginx)  -> exempelkartan (Origo) och vidarebefordran till de två tjänsterna
 #
-# Du behöver inte köra båda tjänsterna: ta bort den du inte vill ha (och dess rad under depends_on och i nginx/web.conf).
+# Förvalt startas bara GeoServer: det är det som behövs när du lägger detaljplanerna i din egen Origo-karta (din webbserver
+# skickar /geoserver/ till GeoServer, se nginx/varden/). Övrigt väljs med COMPOSE_PROFILES i .env:
+#   qgis     QGIS Server (alternativ till GeoServer, /qgis/)
+#   exempel  exempelkartans webbserver (web), som också vidarebefordrar till tjänsterna
 # Båda läser databasen med den skrivskyddade rollen karta_ro. Alla inställningar (databasens adress, nätverk, portar,
 # versioner) står i .env: kopiera .env.exempel och ändra. Lösenorden skapas av databas/skapa_roll.sh och forbered.sh.
 # Minnesgränserna är satta för en liten server (4 GB) som också kör annat: höj dem om du har gott om minne.
@@ -26,7 +29,8 @@ services:
     volumes:
       - geoserver_data:/opt/geoserver_data
     ports:
-      # Administrationen nås bara från den här datorn (SSH-tunnel), aldrig via webben
+      # Bara från den här datorn: din webbserver skickar /geoserver/ hit (och blockerar administrationen), och du når
+      # administrationen själv via SSH-tunnel
       - "127.0.0.1:${GEOSERVER_ADMIN_PORT:-8081}:8080"
     mem_limit: ${GEOSERVER_MEMORY:-1g}
     networks: [default, db]
@@ -34,6 +38,7 @@ services:
   qgis-server:
     image: ${QGIS_SERVER_IMAGE:-qgis/qgis-server:4.2.3-resolute}
     container_name: planmosaik-qgis
+    profiles: [qgis]
     restart: unless-stopped
     environment:
       QGIS_PROJECT_FILE: /io/data/planmosaik.qgs
@@ -48,6 +53,7 @@ services:
   web:
     image: nginx:alpine
     container_name: planmosaik-web
+    profiles: [exempel]
     restart: unless-stopped
     volumes:
       - ./nginx/web.conf:/etc/nginx/conf.d/default.conf:ro
@@ -57,7 +63,9 @@ services:
     ports:
       - "127.0.0.1:${WEB_PORT:-8090}:80"
     mem_limit: 64m
-    depends_on: [geoserver, qgis-server]
+    depends_on:
+      geoserver: {condition: service_started, required: false}
+      qgis-server: {condition: service_started, required: false}
 
 volumes:
   geoserver_data:

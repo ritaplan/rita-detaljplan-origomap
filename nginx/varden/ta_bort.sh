@@ -1,15 +1,16 @@
 #!/bin/sh
 # Tar bort /planmosaik/ ur din nginx igen (raden och snippet-filen). Kör med sudo:
 #
-#   sudo sh ta_bort.sh <konfigurationsfil>
+#   sudo sh ta_bort.sh <konfigurationsfil> [geoserver.conf]
 set -eu
 SITE="${1:?Ange konfigurationsfilen, till exempel /etc/nginx/sites-available/default}"
-SNIPPET=/etc/nginx/snippets/planmosaik.conf
+FILE="${2:-planmosaik.conf}"
+SNIPPET="/etc/nginx/snippets/$FILE"
 BACKUP="$SITE.bak-planmosaik-borttagning-$(date +%Y%m%d-%H%M%S)"
 
 [ "$(id -u)" = 0 ] || { echo "Kör med sudo."; exit 1; }
 cp -p "$SITE" "$BACKUP"
-grep -v -F "snippets/planmosaik.conf" "$BACKUP" > "$SITE"
+grep -v -F "snippets/$FILE" "$BACKUP" > "$SITE"
 rm -f "$SNIPPET"
 if nginx -t; then
     systemctl reload nginx
