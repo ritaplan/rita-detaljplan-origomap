@@ -1,9 +1,9 @@
 #!/bin/sh
-# Tar bort /planmosaik/ ur värdens nginx igen (raden och snippet-filen). Kör med sudo:
+# Tar bort /planmosaik/ ur din nginx igen (raden och snippet-filen). Kör med sudo:
 #
-#   sudo sh ta_bort.sh
+#   sudo sh ta_bort.sh <konfigurationsfil>
 set -eu
-SITE=/etc/nginx/sites-available/default
+SITE="${1:?Ange konfigurationsfilen, till exempel /etc/nginx/sites-available/default}"
 SNIPPET=/etc/nginx/snippets/planmosaik.conf
 BACKUP="$SITE.bak-planmosaik-borttagning-$(date +%Y%m%d-%H%M%S)"
 
