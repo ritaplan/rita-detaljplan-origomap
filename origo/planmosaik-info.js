@@ -71,6 +71,19 @@
     }
   }
 
+  // Bestämmelsernas geometri (egen_geojson) levereras alltid i Web Mercator. Klickpunkten räknas om dit när den ska
+  // jämföras med geometrin.
+  var GEOJSON_PROJECTION = 'EPSG:3857';
+
+  function toGeoJsonProjection(coordinate) {
+    var code = viewer.getProjectionCode();
+    if (code === GEOJSON_PROJECTION) {
+      return coordinate;
+    }
+    // Origo exponerar inte ol.proj, men geometrierna räknar om sig själva
+    return new Origo.ol.geom.Point(coordinate).transform(code, GEOJSON_PROJECTION).getCoordinates();
+  }
+
   // --- geometri: träffar klicket bestämmelsens egen yta? ----------------------------------------------------
   function inRing(x, y, ring) {
     var inside = false;
@@ -142,7 +155,9 @@
     if (!geometry) {
       return;
     }
-    var feature = new Origo.ol.format.GeoJSON().readFeature({ type: 'Feature', geometry: geometry, properties: {} });
+    // Geometrin kommer alltid i Web Mercator, vilket koordinatsystem kartan än går i
+    var feature = new Origo.ol.format.GeoJSON().readFeature({ type: 'Feature', geometry: geometry, properties: {} },
+      { dataProjection: GEOJSON_PROJECTION, featureProjection: viewer.getProjectionCode() });
     feature.setStyle(styleFor(kind));
     layer.getSource().addFeature(feature);
   }
@@ -428,7 +443,7 @@
     body.appendChild(documentsBlock(plan));
     body.appendChild(factsBlock(plan));
     if (areas.length) {
-      body.appendChild(rulesBlock(areas, coordinate));
+      body.appendChild(rulesBlock(areas, toGeoJsonProjection(coordinate)));
     }
     var all = allRulesBlock(plan);
     if (all) {

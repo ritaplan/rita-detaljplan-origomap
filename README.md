@@ -108,7 +108,8 @@ Du behöver bara kopiera mappen `origo/` till din webbplats, lägga två rader i
 
 PostgreSQL 18 med PostGIS 3.6, Rita Detaljplan (schemaversion 11), GeoServer 3.0.2 med tillägget vectortiles, QGIS Server
 4.2.3, Origo 2.10.0 och Docker Compose 5. Planernas koordinatsystem kan vara SWEREF 99 TM (EPSG:3006) eller en lokal zon
-(EPSG:3007–3018: provat med 3008). Själva kartan går i Web Mercator (EPSG:3857).
+(EPSG:3007–3018): provat med 3006 och 3008. Origo-kartan kan gå i Web Mercator (EPSG:3857) eller i SWEREF 99 TM (EPSG:3006,
+provat med bildlagret): se [docs/origo.md](docs/origo.md#karta-i-sweref-99-tm).
 
 ## Begränsningar
 

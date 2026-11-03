@@ -86,6 +86,21 @@ if call("GET", f"/workspaces/{WORKSPACE}/datastores/{STORE}.json")[0] == 404:
 else:
     step("databaskoppling (uppdaterad)", call("PUT", f"/workspaces/{WORKSPACE}/datastores/{STORE}", store))
 
+def declared_srs(name):
+    code, answer = call("GET", f"/workspaces/{WORKSPACE}/datastores/{STORE}/featuretypes/{name}.json")
+    return json.loads(answer)["featureType"]["srs"] if code == 200 else None
+
+
+# Ett lagers koordinatsystem fastställs när det skapas. Byter planerna koordinatsystem (PLAN_EPSG ändrad) skapas lagren om,
+# och lagergruppen med dem (den byggs upp igen längre ner). Stilar och cache berörs inte.
+stale = [n for n, _ in LAYERS + INFO_LAYERS if declared_srs(n) not in (None, EPSG)]
+if stale:
+    call("DELETE", f"/workspaces/{WORKSPACE}/layergroups/{GROUP}")
+    for name in stale:
+        call("DELETE", f"/layers/{WORKSPACE}:{name}")
+        step(f"{name}: lager borttaget (nytt koordinatsystem)",
+             call("DELETE", f"/workspaces/{WORKSPACE}/datastores/{STORE}/featuretypes/{name}?recurse=true"))
+
 for name, title in LAYERS + INFO_LAYERS:
     if call("GET", f"/workspaces/{WORKSPACE}/datastores/{STORE}/featuretypes/{name}.json")[0] == 404:
         feature_type = {"featureType": {"name": name, "nativeName": name, "title": title,

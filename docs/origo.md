@@ -113,6 +113,23 @@ och lägg in en stil i `index.json` som heter som lagret plus `_WMSServerDefault
 
 Sökvägen är relativ till `index.html`. Ikonen kan ritas om fritt: den visas i ungefär 36 px.
 
+## Karta i SWEREF 99 TM
+
+Många kommuner har sin Origo-karta i SWEREF 99 TM (EPSG:3006). Det fungerar med bildlagren (variant A och C): GeoServer ritar
+planerna i kartans koordinatsystem, vilket det än är, och informationspanelen räknar om markeringen och klickpunkten själv.
+Vektorrutorna (variant B) kräver Web Mercator. Ändra kartans `index.json` så här (resten är som ovan):
+
+```json
+"projectionCode": "EPSG:3006",
+"projectionExtent": [-1200000, 4700000, 2600000, 8500000],
+"extent": [-1200000, 4700000, 2600000, 8500000],
+"resolutions": [4096, 2048, 1024, 512, 256, 128, 64, 32, 16, 8, 4, 2, 1, 0.5, 0.25, 0.125],
+"proj4Defs": [{ "code": "EPSG:3006", "projection": "+proj=utm +zone=33 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs" }]
+```
+
+Bakgrundskartor i Web Mercator (till exempel OpenStreetMap) ritas om i webbläsaren och fungerar. Planernas koordinatsystem och
+kartans är två skilda saker: planerna kan ligga i EPSG:3008 och kartan gå i EPSG:3006, eller tvärtom.
+
 ## 4. Informationspanelen
 
 Ett klick på en plan öppnar panelen: status, handlingar, syfte och bestämmelser med motiv. Den kräver:

@@ -23,8 +23,17 @@
 
 CREATE SCHEMA IF NOT EXISTS publicering;
 
+-- Vyerna tas bort och skapas om i stället för att ersättas (CREATE OR REPLACE), eftersom en ersatt vy inte får byta
+-- kolumntyp. Det behövs till exempel när planerna byter koordinatsystem (srid). Läsrollens rättigheter ligger kvar: de ges
+-- som standardrättigheter för nya vyer i schemat (skapa_roll.sh).
+DROP VIEW IF EXISTS publicering.plan_gransar;
+DROP VIEW IF EXISTS publicering.plan_bestammelser;
+DROP VIEW IF EXISTS publicering.plan_egenskap;
+DROP VIEW IF EXISTS publicering.plan_anvandning;
+DROP VIEW IF EXISTS publicering.planmosaik;
+
 -- 1. Planområdena (och det enda ställe som bestämmer vilka planer som är offentliga) ------------------------------
-CREATE OR REPLACE VIEW publicering.planmosaik AS
+CREATE VIEW publicering.planmosaik AS
 SELECT d.fid,
        d.plan,
        d.geom,
@@ -73,7 +82,6 @@ COMMENT ON VIEW publicering.planmosaik IS 'Planområdena för antagna planer och
 
 -- 2. Användningsytor med färg ------------------------------------------------------------------------------------
 -- Färgerna är Boverkets färgnamn som i pluginet (core/symbology.py, FARGER). Namnet står kvar i "farg".
-DROP VIEW IF EXISTS publicering.plan_anvandning;
 CREATE VIEW publicering.plan_anvandning AS
 SELECT a.fid,
        a.plan,
@@ -100,7 +108,7 @@ FROM :"plan_schema".anvandning_yta a
 JOIN publicering.planmosaik p ON p.plan = a.plan;
 
 -- 3. Egenskapsytor med mönster (prickmark, korsmark, ...) ---------------------------------------------------------
-CREATE OR REPLACE VIEW publicering.plan_egenskap AS
+CREATE VIEW publicering.plan_egenskap AS
 SELECT e.fid,
        e.plan,
        e.symbol,
@@ -150,7 +158,7 @@ $$;
 -- ligger i den. Geometrin är användningsytan, så ett klick i kartan ger alla bestämmelser i området. "egen_geojson" är
 -- bestämmelsens egen geometri i Web Mercator: kartan använder den för att visa vilka som gäller exakt där man klickade
 -- och för att markera dem. Bara planer som är offentliga (planmosaik) ingår.
-CREATE OR REPLACE VIEW publicering.plan_bestammelser AS
+CREATE VIEW publicering.plan_bestammelser AS
 WITH rader AS (
     SELECT a.plan, a.objektidentitet AS omrade_id, a.beteckning AS omrade_beteckning, a.anvandningsform, a.geom,
            'anvandning'::text AS kategori, b.objektidentitet AS bestammelse_id, b.beteckning, b.ordning,
@@ -220,7 +228,7 @@ COMMENT ON VIEW publicering.plan_bestammelser IS 'Bestämmelser med motiv per an
 -- Där gränser sammanfaller ritas bara den högsta, och en gräns som delas av två ytor ritas en gång (som i pluginet). Det
 -- gäller också planområdesgränsen mellan två planer som ligger kant i kant: gränserna läggs ihop till en linje. Hörn som
 -- ligger närmare än 5 cm räknas som samma, så att en gräns som två planer ritat var för sig (med små avvikelser) blir en.
-CREATE OR REPLACE VIEW publicering.plan_gransar AS
+CREATE VIEW publicering.plan_gransar AS
 WITH planer AS (
     SELECT ST_Union(ST_Boundary(p.geom), 0.05) AS g FROM publicering.planmosaik p
 ), anv AS (
