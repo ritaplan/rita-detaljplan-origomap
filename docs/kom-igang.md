@@ -1,7 +1,11 @@
 # Kom igång
 
 Så här sätter du upp detaljplanerna i webbkartan, från noll till en publicerad karta. Räkna med en till två timmar första
-gången. Du behöver kunna logga in på servern, köra kommandon och ha administratörsrättigheter i databasen.
+gången.
+
+> **Vanligaste fallet: bara GeoServer (WMS) i din egen Origo-karta.** Gör steg 1–6, hoppa över 7 och 8, och fortsätt i
+> steg 9 (alternativ A) och [origo.md](origo.md). Förvalt startar `docker compose` bara GeoServer. Flödet är provkört mot en
+> vanlig, orörd Origo-karta (2.10.0) som fick detaljplanerna inlagda enligt [origo.md](origo.md). Du behöver kunna logga in på servern, köra kommandon och ha administratörsrättigheter i databasen.
 
 ## Innan du börjar
 
@@ -73,6 +77,9 @@ Server läser (lösenordet står aldrig i QGIS-projektet).
 docker compose up -d
 ```
 
+Förvalt startas **bara GeoServer**. Vill du även ha QGIS Server eller exempelkartans webbserver, lägg
+`COMPOSE_PROFILES=qgis,exempel` i `.env` (QGIS Server kräver steg 7 och `WEB_CONF=web-med-qgis.conf`).
+
 Första starten hämtar avbildningarna (GeoServer ungefär 600 MB, QGIS Server ungefär 850 MB) och GeoServer hämtar
 tillägget *vectortiles* (2 MB, ur GeoServers officiella nedladdningar) för vektorrutor. Det tar några minuter.
 Vill du bara använda en av tjänsterna: ta bort den andra ur `docker-compose.yml` och ur `nginx/web.conf`.
@@ -86,7 +93,7 @@ python3 geoserver/konfigurera_geoserver.py
 Skapar arbetsytan `planmosaik`, kopplar databasen, publicerar lagren med stilar, lagergruppen `planmosaik_karta` (som
 ritar hela plankartan som ett lager) och vektorrutorna. Kan köras om: stilar och utbredning uppdateras.
 
-## 7. Bygg QGIS-projektet
+## 7. Bygg QGIS-projektet (bara om du vill använda QGIS Server)
 
 ```sh
 sh qgis/bygg_projekt.sh
@@ -96,7 +103,10 @@ docker compose restart qgis-server
 Skapar `qgis/planmosaik.qgs` med samma lager och utseende. QGIS Server måste startas om efter att projektet eller
 vyerna ändrats.
 
-## 8. Prova exempelkartan
+## 8. Prova exempelkartan (valfritt)
+
+Behövs bara om du saknar en egen Origo-karta: lägg `COMPOSE_PROFILES=exempel` i `.env` och kör `docker compose up -d`. Vill du i
+stället låta exempelmiljöns webbserver visa en annan, befintlig Origo-karta, ange dess mapp som `WEB_ROOT` i `.env`.
 
 ```sh
 sh hamta_origo.sh
@@ -111,7 +121,20 @@ dem. Zooma in över kommunen och klicka på en plan.
 
 ## 9. Publicera på nätet
 
-Karttjänsterna lyssnar bara på `127.0.0.1`. Publicera dem genom din vanliga webbserver, med HTTPS. Med nginx:
+Karttjänsterna lyssnar bara på `127.0.0.1`. Publicera dem genom din vanliga webbserver, med HTTPS. Med nginx finns två sätt.
+
+**A. Din egen Origo-karta (rekommenderas).** Din webbserver skickar `/geoserver/` till GeoServer, så att kartan och
+karttjänsten ligger på samma adress:
+
+```sh
+sudo sh nginx/varden/installera.sh /etc/nginx/sites-available/default 'server_name kartor.exempelkommun.se;' geoserver.conf
+```
+
+Regeln ([`geoserver.conf`](../nginx/varden/geoserver.conf)) släpper inte ut GeoServers administration. Använd sedan
+relativa adresser (`geoserver/planmosaik/wms`) i din karta: se [origo.md](origo.md). Ta bort igen med
+`sudo sh nginx/varden/ta_bort.sh /etc/nginx/sites-available/default geoserver.conf`.
+
+**B. Exempelkartan och exempelmiljöns webbserver.**
 
 1. Lägg in innehållet i [`nginx/varden/planmosaik.conf`](../nginx/varden/planmosaik.conf) i ditt HTTPS-`server`-block, eller
    låt skriptet göra det (det tar en säkerhetskopia, kör `nginx -t` och återställer själv om något går fel):
@@ -128,8 +151,7 @@ GeoServers administration (`/geoserver/web`, `/geoserver/rest`) släpps medvetet
 (`ssh -L 8081:127.0.0.1:8081 din-server`, sedan `http://localhost:8081/geoserver/web/`, användare `admin`, lösenordet står
 i `.env`).
 
-Vill du lägga detaljplanerna i en redan publicerad Origo-karta i stället för exempelkartan: gå vidare till
-[origo.md](origo.md).
+Detaljplanerna i en redan publicerad Origo-karta: se [origo.md](origo.md).
 
 ## Underhåll
 
