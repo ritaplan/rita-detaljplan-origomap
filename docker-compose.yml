@@ -56,8 +56,9 @@ services:
     profiles: [exempel]
     restart: unless-stopped
     volumes:
-      - ./nginx/web.conf:/etc/nginx/conf.d/default.conf:ro
-      - ./exempelkarta:/usr/share/nginx/html:ro
+      # WEB_CONF: web.conf (bara GeoServer) eller web-med-qgis.conf. WEB_ROOT: den Origo-karta som ska visas (förvalt exempelkartan)
+      - ./nginx/${WEB_CONF:-web.conf}:/etc/nginx/conf.d/default.conf:ro
+      - ${WEB_ROOT:-./exempelkarta}:/usr/share/nginx/html:ro
       # Planmosaikens egna filer för Origo, så som de ska ligga i din egen karta: se docs/origo.md
       - ./origo:/usr/share/nginx/html/detaljplaner:ro
     ports:
