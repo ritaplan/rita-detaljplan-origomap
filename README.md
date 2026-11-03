@@ -1,9 +1,4 @@
-<h1 align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/images/banner-mork.svg">
-    <img src="docs/images/banner-ljus.svg" alt="Rita Detaljplan – detaljplaner i din Origo-karta" width="720">
-  </picture>
-</h1>
+# Rita Detaljplan – Origo-karta
 
 **Visa kommunens detaljplaner i en webbkarta (Origo), direkt ur plandatabasen.** Planerna ritas som plankartor, och ett
 klick på en plan öppnar en informationspanel med planens uppgifter, plankartan och planbeskrivningen och alla bestämmelser
