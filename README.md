@@ -107,8 +107,8 @@ PostgreSQL 18 med PostGIS 3.6, Rita Detaljplan (schemaversion 11), GeoServer 3.0
   materialiserade vyer (se [docs/konfiguration.md](docs/konfiguration.md)).
 - Texterna i panelen är på svenska.
 - Informationspanelen och stilen för vektorrutorna är gjorda för Origo. Databasvyerna och karttjänsterna (WMS och WFS)
-  går att använda i andra kartklienter, till exempel Hajk, som vanliga WMS-lager med lagergruppen `planmosaik_karta`, men då
-  utan panelen. Det är inte provat. Ett Hajk-plugin är inte gjort.
+  går att använda i andra kartklienter. För Hajk finns ett färdigt plugin med samma panel:
+  [rita-detaljplan-hajk](https://github.com/ritaplan/rita-detaljplan-hajk).
 
 ## Licens
 
