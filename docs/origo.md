@@ -99,6 +99,20 @@ Variant B kräver tre saker i kartan, annars hoppar eller saknas rutorna:
 Stilen för vektorrutorna (färger, mönster, streckmönster) ligger i `planmosaik.js`, som registrerar stiltypen `planmosaik`.
 Origos färdiga fil saknar tillägget `olms`, därför behövs den.
 
+### Ikon i lagerlistan (varianterna A och C)
+
+Origo hämtar ikonen för ett bildlager (WMS) ur kartservens teckenförklaring, som för detaljplaner bara blir några små prickar.
+Vill du ha en egen ikon, kopiera [`ikon-detaljplaner.svg`](../origo/ikon-detaljplaner.svg) (den följer med mappen `origo/`)
+och lägg in en stil i `index.json` som heter som lagret plus `_WMSServerDefault`. Heter lagret `detaljplaner`:
+
+```json
+"styles": {
+  "detaljplaner_WMSServerDefault": [ [ { "icon": { "src": "detaljplaner/ikon-detaljplaner.svg" }, "extendedLegend": false } ] ]
+}
+```
+
+Sökvägen är relativ till `index.html`. Ikonen kan ritas om fritt: den visas i ungefär 36 px.
+
 ## 4. Informationspanelen
 
 Ett klick på en plan öppnar panelen: status, handlingar, syfte och bestämmelser med motiv. Den kräver:

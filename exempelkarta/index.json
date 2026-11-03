@@ -221,6 +221,26 @@
           }
         }
       ]
+    ],
+    "planmosaik_geoserver_WMSServerDefault": [
+      [
+        {
+          "icon": {
+            "src": "detaljplaner/ikon-detaljplaner.svg"
+          },
+          "extendedLegend": false
+        }
+      ]
+    ],
+    "planmosaik_qgis_WMSServerDefault": [
+      [
+        {
+          "icon": {
+            "src": "detaljplaner/ikon-detaljplaner.svg"
+          },
+          "extendedLegend": false
+        }
+      ]
     ]
   }
 }

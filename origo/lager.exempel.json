@@ -100,5 +100,17 @@
     0.5971642834779395,
     0.29858214173896974,
     0.14929107086948487
-  ]
+  ],
+  "styles_for_varianterna_A_och_C_ikon_i_lagerlistan": {
+    "detaljplaner_WMSServerDefault": [
+      [
+        {
+          "icon": {
+            "src": "detaljplaner/ikon-detaljplaner.svg"
+          },
+          "extendedLegend": false
+        }
+      ]
+    ]
+  }
 }
