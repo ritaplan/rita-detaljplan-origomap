@@ -74,6 +74,7 @@ Du behöver bara kopiera mappen `origo/` till din webbplats, lägga två rader i
 | [docs/data.md](docs/data.md) | Vad ur Rita Detaljplans data som visas, hur planer blir offentliga och hur handlingar och motiv kopplas. |
 | [docs/konfiguration.md](docs/konfiguration.md) | Alla inställningar, vyerna och deras kolumner, och hur du ändrar utseendet. |
 | [docs/felsokning.md](docs/felsokning.md) | Vanliga problem och hur de rättas. |
+| [SECURITY.md](SECURITY.md) | Hur säkerheten är tänkt och hur du rapporterar en säkerhetsbrist. |
 
 ## Innehållet i repot
 
