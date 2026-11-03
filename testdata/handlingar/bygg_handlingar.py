@@ -1,9 +1,9 @@
 """Gör testhandlingar (PDF) till demoplanerna, så att informationsrutan i webbkartan har något att länka till.
 
-    python-qgis.bat testmiljo/webbkarta/handlingar/bygg_handlingar.py <planbeskrivning.docx> <utmapp>
+    python-qgis.bat testdata/handlingar/bygg_handlingar.py <planbeskrivning.docx> <utmapp>
 
 Skriver <utmapp>/<plan-id>/planbeskrivning.pdf och dagvattenutredning.pdf för demoplanerna. Texten i planbeskrivningen är
-demoplanens egen. Plankartorna (plankarta.pdf) görs på servern av bygg_plankartor.py ur samma karta som visas i webbkartan.
+demoplanens egen. Plankartorna (plankarta.pdf) görs av bygg_plankartor.py ur samma karta som visas i webbkartan.
 Det här är testhandlingar: riktiga handlingar läggs ut av kommunen och länkas i tabellen dokument.
 """
 import html

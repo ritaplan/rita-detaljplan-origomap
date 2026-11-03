@@ -1,17 +1,25 @@
--- Publiceringsvyer för planmosaiken: det enda som webbtjänsterna (GeoServer och QGIS Server) får läsa.
+-- Publiceringsvyer för detaljplaner i webbkartan: det enda som karttjänsterna (GeoServer och QGIS Server) får läsa.
 --
--- Pluginets egna tabeller ligger kvar orörda i planschemat. Vyerna väljer vilka planer som är offentliga och vilka
--- uppgifter som visas, och förbereder det en plankarta behöver (färg per användning, mönster och gränslinjer).
--- Alla planer i planschemat ligger i samma tabeller och skiljs åt med kolumnen "plan".
+-- Rita Detaljplans egna tabeller ligger kvar orörda i planschemat. Vyerna väljer vilka planer som är offentliga och vilka
+-- uppgifter som visas, och förbereder det en plankarta behöver (färg per användning, mönster och gränslinjer) samt
+-- bestämmelser med motiv och länkar till handlingarna. Alla planer i planschemat ligger i samma tabeller och skiljs åt
+-- med kolumnen "plan".
 --
--- Körs som databasens ägare, med planschemats namn och koordinatsystem (EPSG-kod):
+-- Körs som databasens ägare, med planschemats namn och koordinatsystem (EPSG-kod) som variabler. Det enklaste är
+-- databas/installera.sh, som läser dem ur .env. För hand:
 --
 --   psql -v ON_ERROR_STOP=1 -v plan_schema=detaljplaner -v srid=3006 -f publicering.sql
 --
--- Läsrollen skapas separat (publicering_roll.sh), eftersom lösenordet inte ska stå här.
+-- Vilka planer som är offentliga styrs av variabeln statuses (en SQL-lista). Förvalt: 'antagen', 'laga kraft'.
+-- Läsrollen skapas separat (skapa_roll.sh), eftersom lösenordet inte ska stå här.
 --
--- Vyerna räknas om vid varje anrop. För många planer: gör om dem till materialiserade vyer med index och uppdatera dem
--- efter varje incheckning (REFRESH MATERIALIZED VIEW).
+-- Vyerna räknas om vid varje anrop. Med många planer: gör om dem till materialiserade vyer med index och uppdatera dem efter
+-- varje incheckning (REFRESH MATERIALIZED VIEW).
+
+\if :{?statuses}
+\else
+\set statuses '''antagen'', ''laga kraft'''
+\endif
 
 CREATE SCHEMA IF NOT EXISTS publicering;
 
@@ -58,8 +66,8 @@ LEFT JOIN LATERAL (
     ORDER BY b."datumAntagande" DESC NULLS LAST
     LIMIT 1
 ) b ON true
--- Bara antagna planer och planer som vunnit laga kraft är offentliga. Pågående planer och upphävda planer visas inte.
-WHERE d.status IN ('antagen', 'laga kraft');
+-- Bara planer med en offentlig status visas (variabeln statuses, förvalt antagna planer och planer med laga kraft).
+WHERE d.status IN (:statuses);
 
 COMMENT ON VIEW publicering.planmosaik IS 'Planområdena för antagna planer och planer med laga kraft';
 

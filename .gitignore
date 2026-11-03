@@ -1,5 +1,16 @@
+# Hemligheter och inställningar för just din miljö
 .env
 pg_service.conf
-*.log
+# Skapas av skripten
+qgis/planmosaik.qgs
+qgis/planmosaik_attachments.zip
+qgis/stil.py
+exempelkarta/handlingar/
+testdata/handlingar_ut/
+# Origos färdiga filer: hämtas av hamta_origo.sh
 build/
+exempelkarta/js/
+exempelkarta/css/
+exempelkarta/img/
+*.log
 __pycache__/

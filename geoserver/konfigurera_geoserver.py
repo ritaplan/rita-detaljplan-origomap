@@ -1,11 +1,13 @@
-"""Ställer in GeoServer för planmosaiken via REST: arbetsyta, databaskoppling, tre lager med stil och en lagergrupp.
+"""Ställer in GeoServer för detaljplaner via REST: arbetsyta, databaskoppling, lager med stil, en lagergrupp och
+vektorrutor.
 
-Kan köras om (det som redan finns hoppas över, stilarna uppdateras). Körs på servern, där GeoServers administration nås
-på 127.0.0.1:8081:
+Kan köras om (det som redan finns hoppas över, stilarna och utbredningen uppdateras). Körs på datorn där GeoServer ligger,
+där administrationen nås på 127.0.0.1 (GEOSERVER_ADMIN_PORT i .env):
 
     python3 geoserver/konfigurera_geoserver.py
 
-Lösenorden läses ur .env och skrivs aldrig ut.
+Allt läses ur .env: databasen (DB_HOST, DB_PORT, DB_NAME, DB_SSLMODE), planernas koordinatsystem och utbredning
+(PLAN_EPSG, PLAN_EXTENT) och lösenorden. Lösenorden skrivs aldrig ut.
 """
 import base64
 import json
@@ -16,25 +18,34 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 ENV = {}
-for line in (HERE.parent / ".env").read_text().splitlines():
-    if "=" in line:
+for line in (HERE.parent / ".env").read_text(encoding="utf-8").splitlines():
+    if "=" in line and not line.lstrip().startswith("#"):
         key, _, val = line.partition("=")
-        ENV[key.strip()] = val.strip()
+        ENV[key.strip()] = val.strip().strip("'\"")
 
-BASE = "http://127.0.0.1:8081/geoserver/rest"
-GWC = "http://127.0.0.1:8081/geoserver/gwc/rest"  # cachen (GeoWebCache), som levererar vektorrutorna
-AUTH = "Basic " + base64.b64encode(f"admin:{ENV['GEOSERVER_ADMIN_PASSWORD']}".encode()).decode()
+
+def setting(name, default=None):
+    value = ENV.get(name, default)
+    if value is None:
+        sys.exit(f"{name} saknas i .env (se .env.exempel)")
+    return value
+
+
+ADMIN = f"http://127.0.0.1:{setting('GEOSERVER_ADMIN_PORT', '8081')}/geoserver"
+BASE = f"{ADMIN}/rest"
+GWC = f"{ADMIN}/gwc/rest"  # cachen (GeoWebCache), som levererar vektorrutorna
+AUTH = "Basic " + base64.b64encode(f"admin:{setting('GEOSERVER_ADMIN_PASSWORD')}".encode()).decode()
 WORKSPACE, STORE = "planmosaik", "publicering"
 # Lagren i ritordning, underst först. Stilen heter som lagret (planmosaik/<lager>.sld)
 LAYERS = (("plan_anvandning", "Användningsytor"), ("plan_egenskap", "Egenskapsytor"), ("plan_gransar", "Gränslinjer"))
 # Lager som inte ritas i kartan utan bara frågas av informationsrutan (planområden med plandata och bestämmelser med motiv)
 INFO_LAYERS = (("planmosaik", "Planområden"), ("plan_bestammelser", "Bestämmelser med motiv"))
 GROUP = "planmosaik_karta"
-# Cachen (vektorrutorna) levererar bara rutor inom lagergruppens utbredning, och den räknas ut första gången. Ange kommunens
-# utbredning här (planschemats koordinatsystem: minx, miny, maxx, maxy), så att nya planer utanför den första inte får
-# rutor som saknas. Tomma rutor kostar nästan ingenting.
-EXTENT = (123500, 6483000, 134500, 6493500)
-EPSG = "EPSG:3008"
+# Cachen (vektorrutorna) levererar bara rutor inom lagergruppens utbredning, och den räknas ut första gången. Kommunens
+# utbredning (PLAN_EXTENT i .env, planernas koordinatsystem: minx,miny,maxx,maxy) gör att nya planer utanför de första inte
+# får rutor som saknas. Tomma rutor kostar nästan ingenting.
+EXTENT = tuple(float(v) for v in setting("PLAN_EXTENT").split(","))
+EPSG = f"EPSG:{setting('PLAN_EPSG')}"
 
 
 def call(method, path, body=None, content_type="application/json", base=BASE):
@@ -63,8 +74,9 @@ if call("GET", f"/workspaces/{WORKSPACE}.json")[0] == 404:
 else:
     print("arbetsyta: finns redan")
 
-parameters = {"host": "postgis", "port": "5432", "database": "gis", "schema": "publicering", "dbtype": "postgis",
-              "user": "karta_ro", "passwd": ENV["KARTA_RO_PASSWORD"], "SSL mode": "REQUIRE",
+parameters = {"host": setting("DB_HOST", "postgis"), "port": setting("DB_PORT", "5432"), "database": setting("DB_NAME"),
+              "schema": "publicering", "dbtype": "postgis", "user": "karta_ro", "passwd": setting("KARTA_RO_PASSWORD"),
+              "SSL mode": "REQUIRE" if setting("DB_SSLMODE", "require") != "disable" else "DISABLE",
               "Expose primary keys": "true", "validate connections": "true", "Loose bbox": "true",
               "min connections": "1", "max connections": "6"}
 store = {"dataStore": {"name": STORE, "connectionParameters": {"entry": [{"@key": k, "$": v}
@@ -77,7 +89,7 @@ else:
 for name, title in LAYERS + INFO_LAYERS:
     if call("GET", f"/workspaces/{WORKSPACE}/datastores/{STORE}/featuretypes/{name}.json")[0] == 404:
         feature_type = {"featureType": {"name": name, "nativeName": name, "title": title,
-                                        "srs": "EPSG:3008", "projectionPolicy": "FORCE_DECLARED", "enabled": True}}
+                                        "srs": EPSG, "projectionPolicy": "FORCE_DECLARED", "enabled": True}}
         step(f"{name}: lager", call("POST", f"/workspaces/{WORKSPACE}/datastores/{STORE}/featuretypes", feature_type))
         step(f"{name}: utbredning", call("PUT", f"/workspaces/{WORKSPACE}/datastores/{STORE}/featuretypes/{name}"
                                                 "?recalculate=nativebbox,latlonbbox", {"featureType": {"name": name}}))
@@ -97,7 +109,7 @@ for name, title in LAYERS + INFO_LAYERS:
 
 # Lagergruppen ritar de tre lagren i rätt ordning som ett enda lager: LAYERS=planmosaik_karta
 group = {"layerGroup": {
-    "name": GROUP, "title": "Planmosaik", "mode": "SINGLE", "workspace": {"name": WORKSPACE},
+    "name": GROUP, "title": "Detaljplaner", "mode": "SINGLE", "workspace": {"name": WORKSPACE},
     "bounds": {"minx": EXTENT[0], "miny": EXTENT[1], "maxx": EXTENT[2], "maxy": EXTENT[3], "crs": EPSG},
     "publishables": {"published": [{"@type": "layer", "name": f"{WORKSPACE}:{n}"} for n, _ in LAYERS]},
     "styles": {"style": [{"name": f"{WORKSPACE}:{n}"} for n, _ in LAYERS]}}}

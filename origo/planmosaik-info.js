@@ -1,12 +1,18 @@
-// Informationspanelen i planmosaiken: ett klick på en plan visar planens uppgifter, handlingarna (plankarta och
+// Informationspanelen för detaljplaner i Origo: ett klick på en plan visar planens uppgifter, handlingarna (plankarta och
 // planbeskrivning först) och alla bestämmelser med motiv som gäller i området.
 //
 // Uppgifterna hämtas med ett enda GetFeatureInfo-anrop till kartservern (lagren planmosaik och plan_bestammelser, se
-// publicering.sql): inget eget serverprogram behövs. "Alla bestämmelser i planen" hämtas med WFS.
+// databas/publicering.sql): inget eget serverprogram behövs. "Alla bestämmelser i planen" hämtas med WFS.
 //
-//   PlanMosaikInfo.init(viewer, { infoUrl: 'geoserver/planmosaik/wms', wfsUrl: 'geoserver/planmosaik/ows' })
+//   origo.on('load', function (viewer) {
+//     PlanMosaikInfo.init(viewer, {
+//       infoUrl: 'https://kartor.exempelkommun.se/geoserver/planmosaik/wms',  // WMS i arbetsytan planmosaik (GeoServer)
+//       wfsUrl: 'https://kartor.exempelkommun.se/geoserver/planmosaik/ows'    // valfritt: knappen "Alla bestämmelser"
+//     });
+//   });
 //
-// Allt som kommer ur databasen skrivs in med textContent, aldrig som HTML.
+// Alla lager i din Origo-karta som ritar detaljplaner ska vara "queryable": false, annars visar Origo sin egen ruta.
+// Se docs/origo.md. Allt som kommer ur databasen skrivs in med textContent, aldrig som HTML.
 (function () {
   'use strict';
 
@@ -463,7 +469,7 @@
     var size = map.getSize();
     var extent = map.getView().calculateExtent(size);
     var params = new URLSearchParams({
-      SERVICE: 'WMS', VERSION: '1.1.1', REQUEST: 'GetFeatureInfo', LAYERS: LAYERS, QUERY_LAYERS: LAYERS, STYLES: '',
+      SERVICE: 'WMS', VERSION: '1.1.1', REQUEST: 'GetFeatureInfo', LAYERS: options.layers || LAYERS, QUERY_LAYERS: options.layers || LAYERS, STYLES: '',
       SRS: viewer.getProjectionCode(), BBOX: extent.join(','), WIDTH: Math.round(size[0]), HEIGHT: Math.round(size[1]),
       X: Math.round(pixel[0]), Y: Math.round(pixel[1]), INFO_FORMAT: 'application/json', FEATURE_COUNT: '200'
     });

@@ -9,10 +9,13 @@ Behöver stil.py (i mappen ovanför, eller kopierad hit) i samma mapp som skript
 
 Körs med QGIS egen Python, helst i samma avbildning som QGIS Server (så att databasen nås på samma sätt):
 
-    docker run --rm --network postgis_default -v "$PWD/qgis:/io/data" \\
+    docker run --rm --network "$DB_NETWORK" -v "$PWD/qgis:/io/data" \\
         -v "$PWD/qgis/pg_service.conf:/etc/postgresql-common/pg_service.conf:ro" \\
         -e QT_QPA_PLATFORM=offscreen -e PYTHONPATH=/usr/share/qgis/python:/usr/lib/python3/dist-packages \\
-        qgis/qgis-server:4.2.3-resolute python3 /io/data/skapa_qgis_projekt.py [epsg]
+        "$QGIS_SERVER_IMAGE" python3 /io/data/skapa_qgis_projekt.py "$PLAN_EPSG"
+
+(DB_NETWORK, QGIS_SERVER_IMAGE och PLAN_EPSG står i .env: läs in dem med ". ./.env" först. Samma sak görs av
+qgis/bygg_projekt.sh.)
 """
 import sys
 from pathlib import Path
@@ -28,7 +31,7 @@ from qgis.PyQt.QtCore import Qt  # noqa: E402
 from qgis.PyQt.QtGui import QColor  # noqa: E402
 
 OUT = HERE / "planmosaik.qgs"
-EPSG = int(sys.argv[1]) if len(sys.argv) > 1 else 3008
+EPSG = int(sys.argv[1]) if len(sys.argv) > 1 else 3006  # planernas koordinatsystem (PLAN_EPSG i .env)
 GROUP = "planmosaik_karta"
 FILL_OPACITY = 0.75  # användningens färg ligger över grundkartan (pluginet multiplicerar den; ett WMS-lager kan inte det)
 
@@ -152,7 +155,7 @@ LAYERS = (("plan_gransar", "Gränslinjer", "MultiLineString", boundary_renderer)
 
 project = QgsProject.instance()
 project.setCrs(QgsCoordinateReferenceSystem(f"EPSG:{EPSG}"))
-project.setTitle("Planmosaik")
+project.setTitle("Detaljplaner")
 group = project.layerTreeRoot().addGroup(GROUP)
 ids = []
 for name, title, geometry, renderer in LAYERS:
@@ -165,8 +168,8 @@ for name, title, geometry, renderer in LAYERS:
 
 # Det här är vad "OWS-inställningarna" i QGIS projektegenskaper sparar.
 project.writeEntry("WMSServiceCapabilities", "/", True)
-project.writeEntry("WMSServiceTitle", "/", "Planmosaik")
-project.writeEntry("WMSServiceAbstract", "/", "Detaljplaner som är antagna eller har vunnit laga kraft")
+project.writeEntry("WMSServiceTitle", "/", "Detaljplaner")
+project.writeEntry("WMSServiceAbstract", "/", "Detaljplaner som är offentliga")
 project.writeEntry("WMSCrsList", "/", [f"EPSG:{EPSG}", "EPSG:3006", "EPSG:3857", "EPSG:4326"])
 project.writeEntry("WMSUseLayerIDs", "/", False)
 project.writeEntry("WFSLayers", "/", ids)

@@ -1,12 +1,13 @@
 """Gör en plankarta (PDF) per plan ur samma karta som visas i webbkartan: QGIS Server ritar planen som PDF.
 
-Gör en karta för varje offentlig plan (vyn publicering.planmosaik). Körs på servern, i mappen med docker-compose.yml:
+Gör en karta för varje offentlig plan (vyn publicering.planmosaik). Körs i mappen med docker-compose.yml (inställningarna läses ur .env):
 
-    python3 handlingar/bygg_plankartor.py <utmapp>
+    python3 testdata/handlingar/bygg_plankartor.py exempelkarta/handlingar
 
 Skriver <utmapp>/<plan-id>/plankarta.pdf. En förenklad plankarta utan teckenförklaring, bara för testmiljön: en riktig
 plankarta exporteras ur Rita Detaljplan (Leverans och export) och läggs ut av kommunen.
 """
+import shlex
 import subprocess
 import sys
 import time
@@ -17,7 +18,14 @@ from pathlib import Path
 OUT = Path(sys.argv[1])
 # En egen, kortlivad QGIS Server: ett filter (FILTER) i QGIS Server blir kvar i processens cachade projekt och påverkar
 # senare anrop, så det får aldrig köras mot den publika tjänsten.
-IMAGE = "qgis/qgis-server:4.2.3-resolute"
+ENV = {}
+for _line in (Path.cwd() / ".env").read_text(encoding="utf-8").splitlines():
+    if "=" in _line and not _line.lstrip().startswith("#"):
+        _key, _, _value = _line.partition("=")
+        ENV[_key.strip()] = _value.strip().strip("'\"")
+IMAGE = ENV.get("QGIS_SERVER_IMAGE", "qgis/qgis-server:4.2.3-resolute")
+NETWORK = ENV.get("DB_NETWORK", "postgis_default")
+PSQL = shlex.split(ENV["PSQL"])  # kommandot som kör psql som administratör (se .env.exempel)
 CONTAINER = "planmosaik-plankarta"
 SERVICE = "http://127.0.0.1:8095/ows/"
 HERE = Path.cwd()
@@ -26,15 +34,13 @@ PX_PER_M = 5  # bildens upplösning: 5 px per meter (planen ritas då i skala ru
 
 
 def query(sql: str) -> list[list[str]]:
-    result = subprocess.run(["docker", "exec", "postgis", "sh", "-c",
-                             'psql -U "$POSTGRES_USER" -d gis -At -F "|" -c "' + sql.replace('"', '\\"') + '"'],
-                            capture_output=True, text=True, check=True)
+    result = subprocess.run(PSQL + ["-At", "-F", "|", "-c", sql], capture_output=True, text=True, check=True)
     return [line.split("|") for line in result.stdout.splitlines() if line]
 
 
 def start_server() -> None:
     subprocess.run(["docker", "rm", "-f", CONTAINER], capture_output=True)
-    subprocess.run(["docker", "run", "-d", "--rm", "--name", CONTAINER, "--network", "postgis_default", "--memory", "512m",
+    subprocess.run(["docker", "run", "-d", "--rm", "--name", CONTAINER, "--network", NETWORK, "--memory", "512m",
                     "-e", "QGIS_PROJECT_FILE=/io/data/planmosaik.qgs", "-v", f"{HERE}/qgis:/io/data:ro",
                     "-v", f"{HERE}/qgis/pg_service.conf:/etc/postgresql-common/pg_service.conf:ro",
                     "-p", "127.0.0.1:8095:80", IMAGE], check=True, capture_output=True)

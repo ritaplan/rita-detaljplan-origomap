@@ -41,7 +41,7 @@
   ],
   "pageSettings": {
     "footer": {
-      "text": "Planmosaik – testmiljö för Rita Detaljplan"
+      "text": "Detaljplaner – exempelkarta"
     },
     "mapGrid": {
       "visible": true
@@ -116,7 +116,7 @@
   "groups": [
     {
       "name": "planmosaik",
-      "title": "Planmosaik – samma data, olika tjänster",
+      "title": "Detaljplaner",
       "expanded": true
     },
     {

@@ -1,23 +1,29 @@
-"""Skapar SQL för ett testschema i PostGIS med flera planer, så att en planmosaik i en webbkarta har något att visa.
+"""Skapar SQL för ett testschema i PostGIS med flera planer, så att webbkartan över detaljplaner har något att visa.
+
+Behövs bara för att prova lösningen: har du riktiga planer i PostGIS (checkade in från Rita Detaljplan) behöver du inte det här.
 
 Utgår från en plan i en GeoPackage (demoplanen) och gör kopior av den med olika status. De tre första ligger kant i kant och
 delar planområdesgräns: planområdet är en trapets, så den andra planen är första planen vänd 180 grader runt mittpunkten
 på kanten de delar, och den tredje delar den andra planens motsatta kant. Tabellerna skapas med pluginets egen ``ensure_schema``, så de får samma form som när
 pluginet skapar en plan i PostGIS. Skriptet ansluter inte till någon databas: det skriver bara SQL till en fil.
 
-    python-qgis.bat testmiljo/webbkarta/skapa_testschema.py <plan.gpkg> <ut.sql> [schema] [adress till handlingarna]
+    python-qgis.bat testdata/skapa_testschema.py <plan.gpkg> <ut.sql> [schema] [adress till handlingarna]
+
+Kräver QGIS och pluginet Rita Detaljplan (skriptet använder pluginets tabelldefinitioner). Ligger pluginet inte i samma
+mapp som det här repot, ange dess sökväg i miljövariabeln RITA_DETALJPLAN_SOKVAG (mappen som innehåller rita_detaljplan/).
 
 Varje plan får också tre handlingar i tabellen dokument: plankarta, planbeskrivning och ett planeringsunderlag. Länkarna
-är <adress>/<plan-id>/plankarta.pdf och så vidare; filerna görs av handlingar/bygg_handlingar.py.
+är <adress>/<plan-id>/plankarta.pdf och så vidare; filerna görs av testdata/handlingar/.
 """
 from __future__ import annotations
 
+import os
 import sqlite3
 import sys
 import uuid
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+sys.path.insert(0, os.environ.get("RITA_DETALJPLAN_SOKVAG") or str(Path(__file__).resolve().parents[2] / "detaljplan-qgis-temp"))
 from rita_detaljplan.core import model, storage  # noqa: E402
 
 # Kanterna som planerna delar, i demoplanens koordinater (SWEREF 99 13 30). Planområdets västra kant går mellan A och B,
