@@ -1,6 +1,6 @@
 """Skapar SQL för ett testschema i PostGIS med flera planer, så att webbkartan över detaljplaner har något att visa.
 
-Behövs bara för att prova lösningen: har du riktiga planer i PostGIS (checkade in från Rita Detaljplan) behöver du inte det här.
+Behövs bara för att prova integrationen: har du riktiga planer i PostGIS (checkade in från Rita Detaljplan) behöver du inte det här.
 
 Utgår från en plan i en GeoPackage (demoplanen) och gör kopior av den med olika status. De tre första ligger kant i kant och
 delar planområdesgräns: planområdet är en trapets, så den andra planen är första planen vänd 180 grader runt mittpunkten

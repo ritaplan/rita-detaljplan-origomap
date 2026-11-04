@@ -1,11 +1,11 @@
-# Rita Detaljplan – Origo-karta
+# Rita Detaljplan – integration för Origo
 
 **Visa kommunens detaljplaner i en webbkarta (Origo), direkt ur plandatabasen.** Planerna ritas som plankartor, och ett
 klick på en plan öppnar en informationspanel med planens uppgifter, plankartan och planbeskrivningen och alla bestämmelser
-i området med motiv. Det här repot är en färdig lösning som vilken kommun som helst kan använda.
+i området med motiv. Det här är integrationen för Origo, och vilken kommun som helst kan använda den.
 
-Det hör ihop med QGIS-pluginet [Rita Detaljplan](https://github.com/ritaplan/rita-detaljplan): planerna som ritas där och
-checkas in i PostGIS är det som visas i kartan, utan någon export.
+Integrationen kopplar ihop QGIS-pluginet [Rita Detaljplan](https://github.com/ritaplan/rita-detaljplan) med Origo: planerna
+som ritas där och checkas in i PostGIS är det som visas i kartan, utan någon export.
 
 <p align="center">
   <img src="docs/images/skarmbild.png" alt="Origo-karta med detaljplaner: en vald plan är inramad i kartan och panelen till vänster visar planens status, plankartan och planbeskrivningen som knappar, syfte, datum och genomförandetid" width="720">
@@ -96,7 +96,7 @@ Du behöver bara kopiera mappen `origo/` till din webbplats, lägga två rader i
 | `exempelkarta/` | En färdig Origo-karta att prova med. |
 | `nginx/` | Webbservern i exempelmiljön och exempel för din egen webbserver. |
 | `stil.py` | Kartans utseende (linjebredder, streckmönster, mönster) på ett ställe, för alla varianter. |
-| `testdata/` | Skript som gör demoplaner och testhandlingar, för att prova lösningen utan egna planer. |
+| `testdata/` | Skript som gör demoplaner och testhandlingar, för att prova integrationen utan egna planer. |
 | `docker-compose.yml` | GeoServer, QGIS Server och exempelkartans webbserver. |
 
 ## Provat med
@@ -116,7 +116,7 @@ provat med bildlagret): se [docs/origo.md](docs/origo.md#karta-i-sweref-99-tm).
   materialiserade vyer (se [docs/konfiguration.md](docs/konfiguration.md)).
 - Texterna i panelen är på svenska.
 - Informationspanelen och stilen för vektorrutorna är gjorda för Origo. Databasvyerna och karttjänsterna (WMS och WFS)
-  går att använda i andra kartklienter. För Hajk finns ett färdigt plugin med samma panel:
+  går att använda i andra kartklienter. Det finns också en integration för Hajk med samma panel:
   [rita-detaljplan-hajk](https://github.com/ritaplan/rita-detaljplan-hajk).
 
 ## Licens
