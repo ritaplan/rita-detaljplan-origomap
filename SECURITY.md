@@ -12,6 +12,8 @@ I korthet:
 - Tjänsterna lyssnar bara på `127.0.0.1` och publiceras genom din egen webbserver, med HTTPS.
 - Lösenord slumpas av skripten och ligger bara i `.env`, som aldrig checkas in.
 - Informationspanelen skriver allt som kommer ur databasen som text, aldrig som HTML.
+- På GitHub körs automatisk kodanalys (CodeQL för JavaScript och Python) och OpenSSF Scorecard, och Dependabot håller de
+  fastlåsta versionerna av GitHub Actions uppdaterade. De ersätter inte en oberoende granskning.
 
 Kontrollera själv, innan du publicerar, att listan över offentliga planstatusar (`PUBLIC_STATUSES`) är den du vill.
 
