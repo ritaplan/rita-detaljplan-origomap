@@ -10,7 +10,7 @@ och täcka planen. Två saker skiljer från en plankarta på papper, eftersom sk
 
 Skalan delas i band (``BAND_EDGES``); alla mått i ett band räknas för bandets mitt, så att alla tjänster ritar likadant.
 GeoServers stilar (``geoserver/bygg_stilar.py``) och QGIS-projektet (``qgis/skapa_qgis_projekt.py``) bygger på det här
-direkt. Origo-stilen (``web/html/planmosaik.js``) har samma tal i en tabell: ändra båda när något ändras här.
+direkt. Origo-stilen (``origo/planmosaik.js``) har samma tal i en tabell: ändra båda när något ändras här.
 """
 from __future__ import annotations
 

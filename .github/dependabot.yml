@@ -1,0 +1,10 @@
+# Håller de fastlåsta versionerna av GitHub Actions (se .github/workflows/) uppdaterade. Repot har inga egna Python- eller
+# npm-paket. Docker-avbildningarna (GeoServer, QGIS Server och nginx) väljs i .env (GEOSERVER_IMAGE, QGIS_SERVER_IMAGE) och i
+# docker-compose.yml och uppdateras för hand: se .env.exempel, docs/konfiguration.md och *Provat med* i README för vilka
+# versioner som är provade.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly

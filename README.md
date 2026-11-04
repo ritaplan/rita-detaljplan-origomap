@@ -119,6 +119,12 @@ provat med bildlagret): se [docs/origo.md](docs/origo.md#karta-i-sweref-99-tm).
   går att använda i andra kartklienter. Det finns också en integration för Hajk med samma panel:
   [rita-detaljplan-hajk](https://github.com/ritaplan/rita-detaljplan-hajk).
 
+## Bidra och ändringar
+
+- [CONTRIBUTING.md](CONTRIBUTING.md): så rapporterar du fel, provar koden och skickar in en ändring.
+- [CHANGELOG.md](CHANGELOG.md): vad som ändrats mellan versionerna.
+- [NOTICE.md](NOTICE.md): material från andra och deras villkor.
+
 ## Licens
 
 GNU General Public License, version 2 eller senare, som Rita Detaljplan. Se [LICENSE](LICENSE). GeoServer (GPL), QGIS

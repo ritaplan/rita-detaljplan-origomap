@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Säkerhetsfråga
+    url: https://github.com/ritaplan/rita-detaljplan-origomap/security/advisories/new
+    about: Rapportera säkerhetsbrister privat, inte som öppet ärende.
+  - name: Fråga om Origo i sig
+    url: https://github.com/origo-map/origo/issues
+    about: Integrationen är inte en del av Origo. Frågor om Origo själv ställer du i Origos eget repo.
+  - name: Fråga om QGIS-pluginet Rita Detaljplan
+    url: https://github.com/ritaplan/rita-detaljplan/issues
+    about: Hur planerna ritas och checkas in i QGIS hör till Rita Detaljplan.

@@ -9,8 +9,9 @@ pluginet skapar en plan i PostGIS. Skriptet ansluter inte till någon databas: d
 
     python-qgis.bat testdata/skapa_testschema.py <plan.gpkg> <ut.sql> [schema] [adress till handlingarna]
 
-Kräver QGIS och pluginet Rita Detaljplan (skriptet använder pluginets tabelldefinitioner). Ligger pluginet inte i samma
-mapp som det här repot, ange dess sökväg i miljövariabeln RITA_DETALJPLAN_SOKVAG (mappen som innehåller rita_detaljplan/).
+Kräver QGIS och pluginet Rita Detaljplan (skriptet använder pluginets tabelldefinitioner). Skriptet letar efter repot
+rita-detaljplan bredvid det här repot (../rita-detaljplan). Ligger det någon annanstans eller heter mappen något annat, ange
+dess sökväg i miljövariabeln RITA_DETALJPLAN_SOKVAG (mappen som innehåller rita_detaljplan/).
 
 Varje plan får också tre handlingar i tabellen dokument: plankarta, planbeskrivning och ett planeringsunderlag. Länkarna
 är <adress>/<plan-id>/plankarta.pdf och så vidare; filerna görs av testdata/handlingar/.
@@ -23,7 +24,7 @@ import sys
 import uuid
 from pathlib import Path
 
-sys.path.insert(0, os.environ.get("RITA_DETALJPLAN_SOKVAG") or str(Path(__file__).resolve().parents[2] / "detaljplan-qgis-temp"))
+sys.path.insert(0, os.environ.get("RITA_DETALJPLAN_SOKVAG") or str(Path(__file__).resolve().parents[2] / "rita-detaljplan"))
 from rita_detaljplan.core import model, storage  # noqa: E402
 
 # Kanterna som planerna delar, i demoplanens koordinater (SWEREF 99 13 30). Planområdets västra kant går mellan A och B,
