@@ -137,7 +137,8 @@ Ett klick på en plan öppnar panelen: status, handlingar, syfte och bestämmels
 - att lagren `planmosaik` och `plan_bestammelser` är publicerade i din karttjänst (`konfigurera_geoserver.py` gör det),
 - att anrop till `infoUrl` och `wfsUrl` får göras från din karta. Ligger kartan och tjänsterna på **samma webbplats**
   (via din webbserver) behövs inget mer. Ligger de på olika adresser måste tjänsten tillåta det (CORS): i GeoServer
-  `CORS_ENABLED=true` i `docker-compose.yml`.
+  `CORS_ENABLED=true` i `docker-compose.yml`. Vill du att även *andra* webbappar ska kunna läsa planerna som data: se
+  [Låt andra webbappar läsa planerna](kom-igang.md#låt-andra-webbappar-läsa-planerna-cors-valfritt).
 
 Utseendet styrs av CSS-variablerna överst i `planmosaik-info.css` (färger) och texterna står i `planmosaik-info.js`.
 

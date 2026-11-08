@@ -4,6 +4,10 @@ Formatet följer [Keep a Changelog](https://keepachangelog.com/sv/1.1.0/), versi
 
 ## Ej utgivet
 
+- **Dokumentation: CORS för publika lager.** Nytt avsnitt i `docs/kom-igang.md` om hur andra webbappar kan läsa planerna som
+  data (WFS/GeoJSON) direkt från karttjänsten: vad CORS är, att det är ofarligt för de publika lagren, hur det slås på i
+  GeoServer och att det inte ska slås på för lager med inloggning. Förslag från Martin Wiss, som prövat planerna i
+  Dataspatium.
 - **Texter:** README kallar lösningen *integrationen för Origo*, som [ritaplan.xyz](https://ritaplan.xyz) och organisationens
   profil. Märket, banderollerna och förhandsbilden är borttagna.
 - **Testdata:** `testdata/skapa_testschema.py` letar efter Rita Detaljplans kod i repot `rita-detaljplan` bredvid det här

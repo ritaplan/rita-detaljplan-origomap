@@ -153,6 +153,26 @@ i `.env`).
 
 Detaljplanerna i en redan publicerad Origo-karta: se [origo.md](origo.md).
 
+### Låt andra webbappar läsa planerna (CORS, valfritt)
+
+Din egen karta behöver inget av det här när den ligger på samma adress som karttjänsten (A ovan). Det gäller om andra
+webbappar, till exempel en annan kommuns karta eller [Dataspatium](https://github.com/marwiss/Dataspatium), ska kunna **läsa
+planerna som data** direkt från din karttjänst (WFS, GeoJSON). Kartbilder (WMS) går att visa på andra webbplatser utan
+särskilt tillstånd, men webbläsaren tillåter bara att en annan sida läser data om karttjänsten själv säger ja. Det
+tillståndet heter CORS.
+
+- **Rekommendation:** slå på CORS för de **publika** lagren. De innehåller bara det som redan är offentligt (statusarna i
+  `PUBLIC_STATUSES`), och rollen som läser databasen är skrivskyddad. Att tillåta andra webbplatser att läsa dem ger alltså
+  ingen ny information.
+- **GeoServer:** lägg `CORS_ENABLED: "true"` under `environment:` för `geoserver` i `docker-compose.yml` och starta om
+  behållaren (`docker compose up -d`). Då tillåts alla webbplatser. Vill du begränsa vilka som får läsa, hittar du
+  inställningarna för det i dokumentationen för GeoServers behållare.
+- **Slå inte på CORS** för lager som kräver inloggning, eller för något som inte är avsett att vara offentligt.
+- Ställ in CORS på **ett** ställe, antingen i GeoServer eller i din webbserver. Sätts det på båda ställena kan svaret få
+  dubbla rubriker, och då nekar webbläsaren anropet.
+- Kontrollera med webbläsarens utvecklarverktyg (fliken *Nätverk*): svaret från `/geoserver/...` ska ha raden
+  `Access-Control-Allow-Origin`.
+
 ## Underhåll
 
 | Du vill | Gör så |
