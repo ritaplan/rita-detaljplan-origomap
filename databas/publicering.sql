@@ -96,11 +96,11 @@ SELECT a.fid,
        a.anvandningsform,
        a.farg,
        CASE a.farg
-           WHEN 'Gul' THEN '#ffffce'     WHEN 'Brun' THEN '#dabf8c'     WHEN 'Beige' THEN '#ffcb83'
-           WHEN 'Orange' THEN '#ff8040'  WHEN 'Röd' THEN '#fa4b3c'      WHEN 'Rosa' THEN '#ffbce1'
-           WHEN 'Lila' THEN '#d1b6e1'    WHEN 'Blå' THEN '#a5dafb'      WHEN 'Blågrå' THEN '#b6cce1'
-           WHEN 'Grön' THEN '#b2ec40'    WHEN 'Ljusgrön' THEN '#deffce' WHEN 'Grå' THEN '#d9d9d9'
-           WHEN 'Ljusgrå' THEN '#e9e9e9'
+           WHEN 'Gul' THEN '#faee91'     WHEN 'Brun' THEN '#c59760'     WHEN 'Beige' THEN '#d7d79e'
+           WHEN 'Orange' THEN '#f4b67c'  WHEN 'Röd' THEN '#f09e86'      WHEN 'Rosa' THEN '#f9b4bf'
+           WHEN 'Lila' THEN '#c3adca'    WHEN 'Blå' THEN '#bfe6fe'      WHEN 'Blågrå' THEN '#a7c7e2'
+           WHEN 'Grön' THEN '#9bcda5'    WHEN 'Ljusgrön' THEN '#c7edb9' WHEN 'Grå' THEN '#d8d7d7'
+           WHEN 'Ljusgrå' THEN '#efeeea'
            ELSE '#f5f5f5'
        END AS fyllfarg,
        a.geom
@@ -212,11 +212,11 @@ SELECT (row_number() OVER (ORDER BY plan, omrade_id, kategori, ordning, beteckni
            WHEN 'Marken får endast förses med byggnadsverk under mark' THEN 'ringprickad'
        END AS monster,
        CASE farg
-           WHEN 'Gul' THEN '#ffffce'     WHEN 'Brun' THEN '#dabf8c'     WHEN 'Beige' THEN '#ffcb83'
-           WHEN 'Orange' THEN '#ff8040'  WHEN 'Röd' THEN '#fa4b3c'      WHEN 'Rosa' THEN '#ffbce1'
-           WHEN 'Lila' THEN '#d1b6e1'    WHEN 'Blå' THEN '#a5dafb'      WHEN 'Blågrå' THEN '#b6cce1'
-           WHEN 'Grön' THEN '#b2ec40'    WHEN 'Ljusgrön' THEN '#deffce' WHEN 'Grå' THEN '#d9d9d9'
-           WHEN 'Ljusgrå' THEN '#e9e9e9'
+           WHEN 'Gul' THEN '#faee91'     WHEN 'Brun' THEN '#c59760'     WHEN 'Beige' THEN '#d7d79e'
+           WHEN 'Orange' THEN '#f4b67c'  WHEN 'Röd' THEN '#f09e86'      WHEN 'Rosa' THEN '#f9b4bf'
+           WHEN 'Lila' THEN '#c3adca'    WHEN 'Blå' THEN '#bfe6fe'      WHEN 'Blågrå' THEN '#a7c7e2'
+           WHEN 'Grön' THEN '#9bcda5'    WHEN 'Ljusgrön' THEN '#c7edb9' WHEN 'Grå' THEN '#d8d7d7'
+           WHEN 'Ljusgrå' THEN '#efeeea'
        END AS fyllfarg,
        ST_AsGeoJSON(ST_Transform(egen, 3857), 1) AS egen_geojson,
        geom

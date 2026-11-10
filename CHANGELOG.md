@@ -4,6 +4,11 @@ Formatet följer [Keep a Changelog](https://keepachangelog.com/sv/1.1.0/), versi
 
 ## Ej utgivet
 
+- **Ny färgplatta.** Vyerna `plan_anvandning` och `plan_bestammelser` (`databas/publicering.sql`) ger nu användningsområdena
+  samma färgplatta som Rita Detaljplan 0.1.81 (BFS 2020:6, utjämnade akvarellfärger där ingen färg tar över kartan): **Z
+  verksamheter är beige (#d7d79e)** i stället för orange, O och R är orange (#f4b67c), och övriga färgnamn har fått mjukare
+  färger. Kör `sh databas/installera.sh` för att uppdatera vyerna, och starta om GeoServer och QGIS Server. Hajk-pluginet
+  hämtar färgerna ur samma vyer och behöver ingen ändring.
 - **Dokumentation: CORS för publika lager.** Nytt avsnitt i `docs/kom-igang.md` om hur andra webbappar kan läsa planerna som
   data (WFS/GeoJSON) direkt från karttjänsten: vad CORS är, att det är ofarligt för de publika lagren, hur det slås på i
   GeoServer och att det inte ska slås på för lager med inloggning. Förslag från Martin Wiss, som prövat planerna i
