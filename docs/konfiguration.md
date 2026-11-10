@@ -31,12 +31,20 @@ rader av typen `NAMN=värde`, med LF-radslut.
 | `planmosaik` | Planområden med plandata: namn, beteckning, kommun, syfte, status, datum, genomförandetid, `visningsstatus`, `handlingar` (JSON). **Bestämmer vilka planer som är offentliga.** | Informationspanelen, och grund för övriga vyer. |
 | `plan_anvandning` | Användningsytor med Boverkets färg (`fyllfarg`) och plandata. | Ritning, fyllningar. |
 | `plan_egenskap` | Egenskapsytor med mönster (`monster`). | Ritning, mönster. |
-| `plan_gransar` | Planområdes-, användnings- och egenskapsgränser, i rätt hierarki. En gräns som delas av två planer ritas en gång. | Ritning, linjer. |
+| `plan_gransar` | Planområdes-, användnings- och egenskapsgränser, i rätt hierarki. En gräns som delas av två planer ritas en gång. **Förberäknade** (se nedan). | Ritning, linjer. |
 | `plan_bestammelser` | En rad per bestämmelse i varje användningsyta: text med variabler ifyllda, motiv, mönster och bestämmelsens egen geometri som GeoJSON. | Informationspanelen. |
 
-Vyerna räknas om vid varje anrop. Är kommunen stor (många hundra planer) kan de göras om till materialiserade vyer
-(`CREATE MATERIALIZED VIEW ... AS <samma fråga>`, med index, och `REFRESH MATERIALIZED VIEW` efter varje incheckning, till
-exempel med ett cron-jobb). Starta om QGIS Server efter att vyerna byggts om.
+Vyerna räknas om vid varje anrop, **utom `plan_gransar`**: gränslinjerna är tunga att räkna ut (en kommun med flera hundra
+planer tog över en halv minut, mer än läsrollens tidsgräns) och ligger därför förberäknade i en materialiserad vy
+(`plan_gransar_mat`, med index). Efter att planer checkats in, ändrats eller fått ny status uppdaterar du dem:
+
+```sh
+sh databas/uppdatera.sh
+```
+
+Det tar under en minut för 282 planer, och kartan kan läsa de gamla linjerna medan de nya räknas ut. Kartan visar de gamla
+gränslinjerna tills du har gjort det, men inget går sönder. Låt gärna cron göra det, till exempel varje natt:
+`0 3 * * * cd /sökväg/till/repot && sh databas/uppdatera.sh`. Starta om QGIS Server efter att vyerna byggts om.
 
 ## Utseendet: `stil.py`
 

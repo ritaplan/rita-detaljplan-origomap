@@ -4,6 +4,20 @@ Formatet följer [Keep a Changelog](https://keepachangelog.com/sv/1.1.0/), versi
 
 ## Ej utgivet
 
+- **Ny färgpalett i vyerna** (`fyllfarg`): kommunens palett, densamma som i Rita Detaljplan 0.1.82. (kolumnen *Kulör* i tabellen över användningar): Gul #ffe485, Brun #b3a994,
+  Beige #dccfa6, Orange #ebb57f, Röd #db9a8e, Lila #c3b1d6, Blå #a9cfea, Blågrå #9aacb8, Grön #8fcb8a, Ljusgrön #a9e09b,
+  Grå #bbbfbd och Ljusgrå #dce0dd. Rosa (Y, annan kvartersmark) saknas i tabellen och är oförändrad. Färgnamnen och vilka
+  användningar som har dem följer fortfarande BFS 2020:6. Alla färger är ljusa och dämpade (ljushet 0,73 till 0,92 och
+  mättnad högst 0,12 i OKLCH, inget par närmare än 5). Parkering på kvartersmark (P) är Grå enligt BFS 2020:6 och får
+  därför gråns färg, inte den ljusare grå som tabellen anger för P. Kör `sh databas/installera.sh` för att få de nya färgerna.
+
+- **Gränslinjerna är förberäknade och mycket snabbare.** Vyn `plan_gransar` räknade för varje plan om bufferten runt
+  alla planers gränser, vilket för 282 planer tog över tio minuter (och gav tidsgränsfel i GeoServer, eftersom läsrollen har
+  30 sekunder). Bufferten räknas nu en gång, och resultatet ligger i en materialiserad vy med index (`plan_gransar_mat`) som
+  vyn `plan_gransar` läser: skapandet tar 27 sekunder och läsningarna några millisekunder. Resultatet är detsamma som förut
+  (provat: skillnaden i linjelängd var 0,000 m). **Nytt skript `databas/uppdatera.sh`** uppdaterar linjerna efter att planer
+  checkats in eller ändrats (kan köras med cron); kartan visar de gamla linjerna tills det är gjort. Kör `sh databas/installera.sh`
+  för att få den nya vyn.
 - **Ny färgplatta.** Vyerna `plan_anvandning` och `plan_bestammelser` (`databas/publicering.sql`) ger nu användningsområdena
   samma färgplatta som Rita Detaljplan 0.1.81 (BFS 2020:6, utjämnade akvarellfärger där ingen färg tar över kartan): **Z
   verksamheter är beige (#d7d79e)** i stället för orange, O och R är orange (#f4b67c), och övriga färgnamn har fått mjukare

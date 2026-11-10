@@ -13,8 +13,9 @@
 -- Vilka planer som är offentliga styrs av variabeln statuses (en SQL-lista). Förvalt: 'antagen', 'laga kraft'.
 -- Läsrollen skapas separat (skapa_roll.sh), eftersom lösenordet inte ska stå här.
 --
--- Vyerna räknas om vid varje anrop. Med många planer: gör om dem till materialiserade vyer med index och uppdatera dem efter
--- varje incheckning (REFRESH MATERIALIZED VIEW).
+-- Vyerna räknas om vid varje anrop, utom gränslinjerna (plan_gransar): de är tunga att räkna ut (flera hundra planer tog
+-- över en halv minut, mer än läsrollens tidsgräns) och är därför förberäknade i en materialiserad vy. Uppdatera dem efter att
+-- planer checkats in eller ändrats med databas/uppdatera.sh (REFRESH MATERIALIZED VIEW CONCURRENTLY).
 
 \if :{?statuses}
 \else
@@ -27,6 +28,7 @@ CREATE SCHEMA IF NOT EXISTS publicering;
 -- kolumntyp. Det behövs till exempel när planerna byter koordinatsystem (srid). Läsrollens rättigheter ligger kvar: de ges
 -- som standardrättigheter för nya vyer i schemat (skapa_roll.sh).
 DROP VIEW IF EXISTS publicering.plan_gransar;
+DROP MATERIALIZED VIEW IF EXISTS publicering.plan_gransar_mat;
 DROP VIEW IF EXISTS publicering.plan_bestammelser;
 DROP VIEW IF EXISTS publicering.plan_egenskap;
 DROP VIEW IF EXISTS publicering.plan_anvandning;
@@ -96,11 +98,11 @@ SELECT a.fid,
        a.anvandningsform,
        a.farg,
        CASE a.farg
-           WHEN 'Gul' THEN '#faee91'     WHEN 'Brun' THEN '#c59760'     WHEN 'Beige' THEN '#d7d79e'
-           WHEN 'Orange' THEN '#f4b67c'  WHEN 'Röd' THEN '#f09e86'      WHEN 'Rosa' THEN '#f9b4bf'
-           WHEN 'Lila' THEN '#c3adca'    WHEN 'Blå' THEN '#bfe6fe'      WHEN 'Blågrå' THEN '#a7c7e2'
-           WHEN 'Grön' THEN '#9bcda5'    WHEN 'Ljusgrön' THEN '#c7edb9' WHEN 'Grå' THEN '#d8d7d7'
-           WHEN 'Ljusgrå' THEN '#efeeea'
+           WHEN 'Gul' THEN '#ffe485'     WHEN 'Brun' THEN '#b3a994'     WHEN 'Beige' THEN '#dccfa6'
+           WHEN 'Orange' THEN '#ebb57f'  WHEN 'Röd' THEN '#db9a8e'      WHEN 'Rosa' THEN '#f9b4bf'
+           WHEN 'Lila' THEN '#c3b1d6'    WHEN 'Blå' THEN '#a9cfea'      WHEN 'Blågrå' THEN '#9aacb8'
+           WHEN 'Grön' THEN '#8fcb8a'    WHEN 'Ljusgrön' THEN '#a9e09b' WHEN 'Grå' THEN '#bbbfbd'
+           WHEN 'Ljusgrå' THEN '#dce0dd'
            ELSE '#f5f5f5'
        END AS fyllfarg,
        a.geom
@@ -212,11 +214,11 @@ SELECT (row_number() OVER (ORDER BY plan, omrade_id, kategori, ordning, beteckni
            WHEN 'Marken får endast förses med byggnadsverk under mark' THEN 'ringprickad'
        END AS monster,
        CASE farg
-           WHEN 'Gul' THEN '#faee91'     WHEN 'Brun' THEN '#c59760'     WHEN 'Beige' THEN '#d7d79e'
-           WHEN 'Orange' THEN '#f4b67c'  WHEN 'Röd' THEN '#f09e86'      WHEN 'Rosa' THEN '#f9b4bf'
-           WHEN 'Lila' THEN '#c3adca'    WHEN 'Blå' THEN '#bfe6fe'      WHEN 'Blågrå' THEN '#a7c7e2'
-           WHEN 'Grön' THEN '#9bcda5'    WHEN 'Ljusgrön' THEN '#c7edb9' WHEN 'Grå' THEN '#d8d7d7'
-           WHEN 'Ljusgrå' THEN '#efeeea'
+           WHEN 'Gul' THEN '#ffe485'     WHEN 'Brun' THEN '#b3a994'     WHEN 'Beige' THEN '#dccfa6'
+           WHEN 'Orange' THEN '#ebb57f'  WHEN 'Röd' THEN '#db9a8e'      WHEN 'Rosa' THEN '#f9b4bf'
+           WHEN 'Lila' THEN '#c3b1d6'    WHEN 'Blå' THEN '#a9cfea'      WHEN 'Blågrå' THEN '#9aacb8'
+           WHEN 'Grön' THEN '#8fcb8a'    WHEN 'Ljusgrön' THEN '#a9e09b' WHEN 'Grå' THEN '#bbbfbd'
+           WHEN 'Ljusgrå' THEN '#dce0dd'
        END AS fyllfarg,
        ST_AsGeoJSON(ST_Transform(egen, 3857), 1) AS egen_geojson,
        geom
@@ -228,9 +230,16 @@ COMMENT ON VIEW publicering.plan_bestammelser IS 'Bestämmelser med motiv per an
 -- Där gränser sammanfaller ritas bara den högsta, och en gräns som delas av två ytor ritas en gång (som i pluginet). Det
 -- gäller också planområdesgränsen mellan två planer som ligger kant i kant: gränserna läggs ihop till en linje. Hörn som
 -- ligger närmare än 5 cm räknas som samma, så att en gräns som två planer ritat var för sig (med små avvikelser) blir en.
-CREATE VIEW publicering.plan_gransar AS
+--
+-- Förberäknade (materialiserad vy med index): beräkningen är tung, och en vy som räknas om vid varje kartanrop skulle ta
+-- längre tid än läsrollens statement_timeout. Bufferten runt planområdesgränserna räknas en gång (inte en gång per plan), och
+-- egenskapsgränsen dras bort mot planområdes- och användningsgränsens buffertar var för sig (samma resultat som att dra bort
+-- deras union, utan att slå ihop den stora geometrin igen för varje plan).
+CREATE MATERIALIZED VIEW publicering.plan_gransar_mat AS
 WITH planer AS (
     SELECT ST_Union(ST_Boundary(p.geom), 0.05) AS g FROM publicering.planmosaik p
+), planbuffer AS (
+    SELECT ST_Buffer(planer.g, 0.1) AS g FROM planer
 ), anv AS (
     SELECT a.plan, ST_Union(ST_Boundary(a.geom), 0.05) AS g
     FROM :"plan_schema".anvandning_yta a JOIN publicering.planmosaik p ON p.plan = a.plan GROUP BY a.plan
@@ -241,18 +250,30 @@ WITH planer AS (
     -- planområdesgränsen gäller alla planer: den hör inte till en enskild plan
     SELECT NULL::text AS plan, 'planomradesgrans'::text AS typ, planer.g AS geom FROM planer
     UNION ALL
-    SELECT anv.plan, 'anvandningsgrans', ST_Difference(anv.g, ST_Buffer(planer.g, 0.1))
-    FROM anv CROSS JOIN planer
+    SELECT anv.plan, 'anvandningsgrans', ST_Difference(anv.g, planbuffer.g)
+    FROM anv CROSS JOIN planbuffer
     UNION ALL
     SELECT egen.plan, 'egenskapsgrans',
-           ST_Difference(egen.g, ST_Buffer(ST_Union(planer.g, COALESCE(anv.g, planer.g)), 0.1))
-    FROM egen CROSS JOIN planer LEFT JOIN anv USING (plan)
+           CASE WHEN anv.g IS NULL THEN ST_Difference(egen.g, planbuffer.g)
+                ELSE ST_Difference(ST_Difference(egen.g, planbuffer.g), ST_Buffer(anv.g, 0.1)) END
+    FROM egen CROSS JOIN planbuffer LEFT JOIN anv USING (plan)
 )
 SELECT (row_number() OVER (ORDER BY typ, plan))::int AS fid,
        plan,
        typ,
        ST_Multi(ST_CollectionExtract(geom, 2))::geometry(MultiLineString, :srid) AS geom
 FROM linjer
-WHERE geom IS NOT NULL AND NOT ST_IsEmpty(ST_CollectionExtract(geom, 2));
+WHERE geom IS NOT NULL AND NOT ST_IsEmpty(ST_CollectionExtract(geom, 2))
+WITH DATA;
 
-COMMENT ON VIEW publicering.plan_gransar IS 'Planområdesgräns, användningsgräns och egenskapsgräns';
+CREATE UNIQUE INDEX plan_gransar_mat_fid ON publicering.plan_gransar_mat (fid);
+CREATE INDEX plan_gransar_mat_geom ON publicering.plan_gransar_mat USING gist (geom);
+CREATE INDEX plan_gransar_mat_plan ON publicering.plan_gransar_mat (plan);
+ANALYZE publicering.plan_gransar_mat;
+
+-- Vyn som karttjänsterna läser (samma namn och kolumner som förut)
+CREATE VIEW publicering.plan_gransar AS
+SELECT fid, plan, typ, geom FROM publicering.plan_gransar_mat;
+
+COMMENT ON MATERIALIZED VIEW publicering.plan_gransar_mat IS 'Förberäknade gränslinjer: uppdateras med databas/uppdatera.sh';
+COMMENT ON VIEW publicering.plan_gransar IS 'Planområdesgräns, användningsgräns och egenskapsgräns (förberäknade, se plan_gransar_mat)';
