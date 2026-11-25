@@ -29,7 +29,7 @@ rader av typen `NAMN=värde`, med LF-radslut.
 | Vy | Innehåll | Används till |
 |---|---|---|
 | `planmosaik` | Planområden med plandata: namn, beteckning, kommun, syfte, status, datum, genomförandetid, `visningsstatus`, `handlingar` (JSON). **Bestämmer vilka planer som är offentliga.** | Informationspanelen, och grund för övriga vyer. |
-| `plan_anvandning` | Användningsytor med Boverkets färg (`fyllfarg`) och plandata. | Ritning, fyllningar. |
+| `plan_anvandning` | Användningsytor med fyllnadsfärg (`fyllfarg`, färgnamn enligt BFS 2020:6) och plandata. | Ritning, fyllningar. |
 | `plan_egenskap` | Egenskapsytor med mönster (`monster`). | Ritning, mönster. |
 | `plan_gransar` | Planområdes-, användnings- och egenskapsgränser, i rätt hierarki. En gräns som delas av två planer ritas en gång. **Förberäknade** (se nedan). | Ritning, linjer. |
 | `plan_bestammelser` | En rad per bestämmelse i varje användningsyta: text med variabler ifyllda, motiv, mönster och bestämmelsens egen geometri som GeoJSON. | Informationspanelen. |

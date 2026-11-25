@@ -19,7 +19,7 @@ som ritas där och checkas in i PostGIS är det som visas i kartan, utan någon 
 
 | | |
 |---|---|
-| **Plankarta i webbläsaren** | Användningsytor i Boverkets färger, egenskapsmönster (prickmark, korsmark, ringprickad mark), planområdesgräns, användningsgräns och egenskapsgräns i rätt hierarki. Mått och streckmönster följer kartans skala. |
+| **Plankarta i webbläsaren** | Användningsytor i samma färger som i Rita Detaljplan (färgnamnen följer BFS 2020:6), egenskapsmönster (prickmark, korsmark, ringprickad mark), planområdesgräns, användningsgräns och egenskapsgräns i rätt hierarki. Mått och streckmönster följer kartans skala. |
 | **Informationspanel vid klick** | Status i klartext, handlingar (plankarta och planbeskrivning som knappar), syfte, datum och genomförandetid. Bestämmelserna i området med motiv, där de som gäller exakt där man klickade är markerade. Fungerar på dator och telefon. |
 | **Två karttjänster att välja mellan** | GeoServer (bilder, vektorrutor och WFS) eller QGIS Server (bilder och WFS). Du behöver bara en. |
 | **Bara det som är offentligt** | Karttjänsterna läser en skrivskyddad vy, inte Rita Detaljplans egna tabeller. Du bestämmer vilka planstatusar som visas. |

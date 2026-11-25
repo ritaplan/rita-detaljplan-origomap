@@ -21,7 +21,7 @@ ska normalt inte ligga öppet.
 |---|---|
 | Planområdet (*Detaljplan*) | Planområdesgräns (tjock streckprickad linje), och rubrik och uppgifter i panelen: namn, beteckning, kommun, syfte, status. |
 | *Beslutsinformation* | Datum för antagande och laga kraft, genomförandetid och diarienummer i panelen. Genomförandetidens slut räknas ut från första datumet för laga kraft. |
-| Användningsytor och deras bestämmelser | Färgade ytor (Boverkets färger), användningsgräns, och bestämmelserna under "Användning" i panelen. |
+| Användningsytor och deras bestämmelser | Färgade ytor (färgnamn enligt BFS 2020:6, samma kulörer som i Rita Detaljplan), användningsgräns, och bestämmelserna under "Användning" i panelen. |
 | Egenskapsytor, -linjer och -punkter | Mönster (prickmark, korsmark, ringprickad mark), egenskapsgräns, och bestämmelserna under "Egenskaper" i panelen. |
 | Bestämmelsernas **motiv** | Visas under varje bestämmelse. Saknas motiv står "Inget motiv är angivet". |
 | *Dokument* | Knappar och länkar i panelen (se nedan). |

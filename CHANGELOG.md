@@ -4,12 +4,14 @@ Formatet följer [Keep a Changelog](https://keepachangelog.com/sv/1.1.0/), versi
 
 ## Ej utgivet
 
-- **Ny färgpalett i vyerna** (`fyllfarg`): kommunens palett, densamma som i Rita Detaljplan 0.1.82. (kolumnen *Kulör* i tabellen över användningar): Gul #ffe485, Brun #b3a994,
-  Beige #dccfa6, Orange #ebb57f, Röd #db9a8e, Lila #c3b1d6, Blå #a9cfea, Blågrå #9aacb8, Grön #8fcb8a, Ljusgrön #a9e09b,
-  Grå #bbbfbd och Ljusgrå #dce0dd. Rosa (Y, annan kvartersmark) saknas i tabellen och är oförändrad. Färgnamnen och vilka
-  användningar som har dem följer fortfarande BFS 2020:6. Alla färger är ljusa och dämpade (ljushet 0,73 till 0,92 och
-  mättnad högst 0,12 i OKLCH, inget par närmare än 5). Parkering på kvartersmark (P) är Grå enligt BFS 2020:6 och får
-  därför gråns färg, inte den ljusare grå som tabellen anger för P. Kör `sh databas/installera.sh` för att få de nya färgerna.
+## [0.1.2] – 2026-11-25 – nya färger och snabbare gränslinjer
+
+- **Nya färger på användningsområdena.** Vyerna `plan_anvandning` och `plan_bestammelser` (`databas/publicering.sql`) ger
+  samma färger som Rita Detaljplan 0.1.82: Gul #ffe485, Brun #b3a994, Beige #dccfa6, Orange #ebb57f, Röd #db9a8e,
+  Rosa #f9b4bf, Lila #c3b1d6, Blå #a9cfea, Blågrå #9aacb8, Grön #8fcb8a, Ljusgrön #a9e09b, Grå #bbbfbd och Ljusgrå #dce0dd.
+  Färgnamnen och vilka användningar som har dem följer BFS 2020:6; kulörerna är ljusa och dämpade så att ingen färg tar
+  över kartan. Jämfört med 0.1.1 är till exempel Z (verksamheter) beige i stället för orange. Hajk-pluginet hämtar färgerna
+  ur samma vyer och behöver ingen ändring.
 
 - **Gränslinjerna är förberäknade och mycket snabbare.** Vyn `plan_gransar` räknade för varje plan om bufferten runt
   alla planers gränser, vilket för 282 planer tog över tio minuter (och gav tidsgränsfel i GeoServer, eftersom läsrollen har
@@ -18,11 +20,6 @@ Formatet följer [Keep a Changelog](https://keepachangelog.com/sv/1.1.0/), versi
   (provat: skillnaden i linjelängd var 0,000 m). **Nytt skript `databas/uppdatera.sh`** uppdaterar linjerna efter att planer
   checkats in eller ändrats (kan köras med cron); kartan visar de gamla linjerna tills det är gjort. Kör `sh databas/installera.sh`
   för att få den nya vyn.
-- **Ny färgplatta.** Vyerna `plan_anvandning` och `plan_bestammelser` (`databas/publicering.sql`) ger nu användningsområdena
-  samma färgplatta som Rita Detaljplan 0.1.81 (BFS 2020:6, utjämnade akvarellfärger där ingen färg tar över kartan): **Z
-  verksamheter är beige (#d7d79e)** i stället för orange, O och R är orange (#f4b67c), och övriga färgnamn har fått mjukare
-  färger. Kör `sh databas/installera.sh` för att uppdatera vyerna, och starta om GeoServer och QGIS Server. Hajk-pluginet
-  hämtar färgerna ur samma vyer och behöver ingen ändring.
 - **Dokumentation: CORS för publika lager.** Nytt avsnitt i `docs/kom-igang.md` om hur andra webbappar kan läsa planerna som
   data (WFS/GeoJSON) direkt från karttjänsten: vad CORS är, att det är ofarligt för de publika lagren, hur det slås på i
   GeoServer och att det inte ska slås på för lager med inloggning. Förslag från Martin Wiss, som prövat planerna i
@@ -34,6 +31,11 @@ Formatet följer [Keep a Changelog](https://keepachangelog.com/sv/1.1.0/), versi
   i `stil.py` är rättad.
 - **Standardfiler och kontroller:** CONTRIBUTING, CHANGELOG och NOTICE, ärendemallar, Dependabot för GitHub Actions och
   automatiska kontroller på GitHub (kodanalys med CodeQL för JavaScript och Python, och OpenSSF Scorecard).
+
+**Uppgradera från 0.1.1:** `git pull`, `sh databas/installera.sh` (skapar vyerna med de nya färgerna och de förberäknade
+linjerna), `python3 geoserver/konfigurera_geoserver.py`, och starta om GeoServer och QGIS Server. Filerna i `origo/` är
+oförändrade. Kör därefter `sh databas/uppdatera.sh` när planer har ändrats, gärna med cron. Från 0.1.0: följ även
+stegen under 0.1.1.
 
 ## [0.1.1] – 2026-11-03 – rättningar efter prov i SWEREF 99 TM (EPSG:3006)
 
