@@ -4,7 +4,7 @@ Formatet följer [Keep a Changelog](https://keepachangelog.com/sv/1.1.0/), versi
 
 ## Ej utgivet
 
-## [0.1.2] – 2026-11-25 – nya färger och snabbare gränslinjer
+## [0.1.2] – 2026-11-26 – nya färger och snabbare gränslinjer
 
 - **Nya färger på användningsområdena.** Vyerna `plan_anvandning` och `plan_bestammelser` (`databas/publicering.sql`) ger
   samma färger som Rita Detaljplan 0.1.82: Gul #ffe485, Brun #b3a994, Beige #dccfa6, Orange #ebb57f, Röd #db9a8e,
